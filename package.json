@@ -1,0 +1,16 @@
+{
+  "name": "mtu-dinning",
+  "version": "1.0.0",
+  "description": "🌮 🌭 A scrapper for MTU's dinning halls.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Max Isom <codetheweb@icloud.com> (https://maxisom.me)",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "got": "^9.3.2",
+    "moment": "^2.22.2"
+  }
+}
