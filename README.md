@@ -1,4 +1,4 @@
-🌭 MTU-Dinning 🌮
+🌭 MTU-Dining 🌮
 ==================
 
 A package to scrape all those tasty meals (😋) from Michigan Tech's published meal schedule for the dining halls.
@@ -6,12 +6,12 @@ A package to scrape all those tasty meals (😋) from Michigan Tech's published 
 ## Usage
 
 ```javascript
-const MTUDinning = require('mtu-dinning');
+const MTUDining = require('mtu-dining');
 
-const Dinning = new MTUDinning();
+const Dining = new MTUDining();
 
 (async() => {
-  console.log(await Dinning.getMenu(Dinning.MCNAIR));
+  console.log(await Dining.getMenu(Dining.MCNAIR));
 })();
 ```
 
@@ -19,7 +19,7 @@ const Dinning = new MTUDinning();
 
 Dead simple, just like the meals.  One function:
 
-- `getMenu(hall)`, where `hall` is `(new MTUDinning()).MCNAIR || (new MTUDinning()).WADS`.
+- `getMenu(hall)`, where `hall` is `(new MTUDining()).MCNAIR || (new MTUDining()).WADS`.
 
 
 Enjoy your food.

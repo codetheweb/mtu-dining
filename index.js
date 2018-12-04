@@ -2,7 +2,7 @@ const got = require('got');
 const cheerio = require('cheerio');
 const moment = require('moment');
 
-class Dinning {
+class Dining {
   constructor() {
     this.WADS = 'wads';
     this.MCNAIR = 'mcnair';
@@ -102,4 +102,4 @@ class Dinning {
   }
 }
 
-module.exports = Dinning;
+module.exports = Dining;
