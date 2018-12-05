@@ -8,9 +8,11 @@ class Dining {
     this.MCNAIR = 'mcnair';
 
     this.baseURL = 'https://www.mtu.edu/dining/centers/';
+
+    this.menu = {};
   }
 
-  async getMenu(hall) {
+  async load(hall) {
     const response = await got(this.baseURL + hall);
 
     const $ = cheerio.load(response.body);
@@ -98,7 +100,34 @@ class Dining {
       orderedSemesterMenu[key] = semesterMenu[key];
     });
 
-    return orderedSemesterMenu;
+    this.menu = orderedSemesterMenu;
+    return this.menu;
+  }
+
+  get(date) {
+    // Check arguments
+    if (!Object.keys(this.menu).length) {
+      throw new Error('Menu not loaded yet.');
+    }
+
+    if (!date || !Object.keys(this.menu).length) {
+      date = {};
+    }
+
+    if (!date.day || !date.month) {
+      throw new Error('Must give day and month.');
+    }
+
+    let queryDate = new moment().set({
+      'month': date.month,
+      'date': date.day,
+      'hour': 0,
+			'minutes': 0,
+			'seconds': 0,
+			'miliseconds': 0
+    });
+
+    return this.menu[queryDate];
   }
 }
 
