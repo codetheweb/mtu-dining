@@ -1,6 +1,6 @@
 const got = require('got');
 const cheerio = require('cheerio');
-const moment = require('moment');
+const Moment = require('moment');
 
 class Dining {
   constructor() {
@@ -13,46 +13,51 @@ class Dining {
   }
 
   async load(hall) {
+    if (!(hall === this.WADS || hall === this.MCNAIR)) {
+      throw new TypeError('Wrong hall format.');
+    }
+
     const response = await got(this.baseURL + hall);
 
     const $ = cheerio.load(response.body);
 
-    let semesterMenu = {};
+    const semesterMenu = {};
 
     // For each meal rotation
     $('#content_body > h2').each((index, header) => {
-      let thisHeader = $(header).text();
+      const thisHeader = $(header).text();
 
       // Add all weeks to semester
-      let re = /(\d+\/\d+)-(\d+\/\d+)/g;
-      let theseWeeks = [];
+      const re = /(\d+\/\d+)-(\d+\/\d+)/g;
+      const theseWeeks = [];
 
-      thisHeader.replace(re, (match, g1, g2) => {
+      thisHeader.replace(re, (match, g1, _) => {
         const thisPair = g1.split('/');
         theseWeeks.push({
-          month: parseInt(thisPair[0]),
-          day: parseInt(thisPair[1])
+          month: parseInt(thisPair[0], 10),
+          day: parseInt(thisPair[1], 10)
         });
       });
 
       // For each day in week
-      let thisMealPlan = {};
+      const thisMealPlan = {};
 
       $('.sliders:nth-of-type(' + (index + 2) + ') table').each((dayOfWeek, table) => {
-        let meals = {};
+        const meals = {};
 
         // For each mealtime in day
         $(table).find('tr:nth-child(2) td').each((mealTime, menuDay) => {
           // For each item in meal
-          let items = [];
+          const items = [];
 
           $(menuDay).text().split(/\r?\n/).forEach(s => {
-            if (s.trim() !== '')
+            if (s.trim() !== '') {
               items.push(s.trim());
+            }
           });
 
           // Add items to correct mealtime
-          switch(mealTime) {
+          switch (mealTime) {
             case 0:
               meals.breakfast = items;
               break;
@@ -62,12 +67,13 @@ class Dining {
             case 2:
               meals.dinner = items;
               break;
+            default:
+              break;
           }
         });
 
         thisMealPlan[dayOfWeek] = meals;
       });
-
 
       // At this point we know the
       // meal plan for the entire week
@@ -75,13 +81,13 @@ class Dining {
       // weeks it will be served
       // (theseWeeks).
       theseWeeks.forEach(startDate => {
-        let thisDay = new moment().set({
-          'month': startDate.month - 1,
-          'date': startDate.day,
-          'hour': 0,
-          'minute': 0,
-          'second': 0,
-          'milisecond': 0});
+        const thisDay = new Moment().set({
+          month: startDate.month - 1,
+          date: startDate.day,
+          hour: 0,
+          minute: 0,
+          second: 0,
+          milisecond: 0});
 
         // For every day in week
         for (let i = 0; i < 7; i++) {
@@ -96,7 +102,7 @@ class Dining {
 
     Object.keys(semesterMenu).sort((a, b) => {
       return new Date(a).getTime() - new Date(b).getTime();
-    }).forEach((key) => {
+    }).forEach(key => {
       orderedSemesterMenu[key] = semesterMenu[key];
     });
 
@@ -106,11 +112,11 @@ class Dining {
 
   get(date) {
     // Check arguments
-    if (!Object.keys(this.menu).length) {
+    if (Object.keys(this.menu).length === undefined) {
       throw new Error('Menu not loaded yet.');
     }
 
-    if (!date || !Object.keys(this.menu).length) {
+    if (!date || Object.keys(this.menu).length === undefined) {
       date = {};
     }
 
@@ -118,13 +124,13 @@ class Dining {
       throw new Error('Must give day and month.');
     }
 
-    let queryDate = new moment().set({
-      'month': date.month,
-      'date': date.day,
-      'hour': 0,
-			'minutes': 0,
-			'seconds': 0,
-			'miliseconds': 0
+    const queryDate = new Moment().set({
+      month: date.month,
+      date: date.day,
+      hour: 0,
+      minutes: 0,
+      seconds: 0,
+      miliseconds: 0
     });
 
     return this.menu[queryDate];
