@@ -1,4 +1,4 @@
-🌭 MTU-Dining 🌮
+🌭 MTU-Dining 🌮  [![Build Status](https://travis-ci.com/codetheweb/mtu-dining.svg?branch=master)](https://travis-ci.com/codetheweb/mtu-dining)
 ==================
 
 A package to scrape all those tasty meals (😋) from Michigan Tech's published meal schedule for the dining halls.
@@ -8,18 +8,20 @@ A package to scrape all those tasty meals (😋) from Michigan Tech's published 
 ```javascript
 const MTUDining = require('mtu-dining');
 
-const Dining = new MTUDining();
+const McNair = new MTUDining();
 
 (async() => {
-  console.log(await Dining.getMenu(Dining.MCNAIR));
+  await McNair.load(McNair.MCNAIR);
+
+  console.log(McNair.get({month: 7, day: 27}))
 })();
 ```
 
 ## Documentation
 
-Dead simple, just like the meals.  One function:
+Dead simple, just like the meals.  Two functions:
 
-- `getMenu(hall)`, where `hall` is `(new MTUDining()).MCNAIR || (new MTUDining()).WADS`.
-
+- `load(hall)`, where `hall` is `(new MTUDining()).MCNAIR || (new MTUDining()).WADS`.
+- `get(date)`, where `date` is `{month: _month_, day: _day_}`.
 
 Enjoy your food.
