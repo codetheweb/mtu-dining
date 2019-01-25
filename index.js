@@ -1,6 +1,9 @@
+const fs = require('fs');
+const {resolve, basename} = require('path');
 const got = require('got');
 const cheerio = require('cheerio');
-const Moment = require('moment');
+const moment = require('moment');
+const Papa = require('papaparse');
 
 class Dining {
   constructor() {
@@ -17,6 +20,71 @@ class Dining {
       throw new TypeError('Wrong hall format.');
     }
 
+    const dataDirectory = resolve('data/' + moment().year() + '/' + hall);
+
+    if (fs.existsSync(dataDirectory)) {
+      return this._staticLoad(dataDirectory);
+    }
+    return this._httpLoad(hall);
+  }
+
+  _staticLoad(directory) {
+    let finalMenu = {};
+
+    return new Promise((resolve, reject) => {
+      fs.readdir(directory, (error, items) => {
+        if (error) {
+          reject(error);
+        }
+
+        this.forEachPromise(items, async filename => {
+          const menu = await this._fileLoad(directory + '/' + filename);
+          finalMenu = Object.assign({}, finalMenu, menu);
+        }).then(() => {
+          this.menu = finalMenu;
+
+          resolve(this.menu);
+        });
+      });
+    });
+  }
+
+  _fileLoad(path) {
+    let startDate = basename(path);
+    startDate = startDate.substr(0, startDate.lastIndexOf('.'));
+    startDate = new moment(startDate, 'M:DD:YY');
+
+    return new Promise((resolve, reject) => {
+      fs.readFile(path, 'utf8', (error, data) => {
+        if (error) {
+          reject(error);
+        }
+
+        const parsedData = Papa.parse(data).data;
+
+        // Remove header
+        parsedData.shift();
+
+        // Shove into object
+        const menu = {};
+
+        for (let i = 0; i < 7; i++) {
+          menu[startDate] = {
+            breakfast: parsedData[0][i].split('\n'),
+            lunch: parsedData[1][i].split('\n'),
+            dinner: parsedData[2][i].split('\n')
+          };
+
+          // Increment startDate by 1 day
+          startDate.add(1, 'days');
+        }
+
+        resolve(menu);
+      });
+    });
+  }
+
+  async _httpLoad(hall) {
     const response = await got(this.baseURL + hall);
 
     const $ = cheerio.load(response.body);
@@ -81,7 +149,7 @@ class Dining {
       // weeks it will be served
       // (theseWeeks).
       theseWeeks.forEach(startDate => {
-        const thisDay = new Moment().set({
+        const thisDay = new moment().set({
           month: startDate.month - 1,
           date: startDate.day,
           hour: 0,
@@ -120,11 +188,11 @@ class Dining {
       date = {};
     }
 
-    if (!date.day || !date.month) {
-      throw new Error('Must give day and month.');
+    if (typeof date.day !== 'number' || typeof date.month !== 'number') {
+      throw new TypeError('Must give day and month.');
     }
 
-    const queryDate = new Moment().set({
+    const queryDate = new moment().set({
       month: date.month,
       date: date.day,
       hour: 0,
@@ -134,6 +202,14 @@ class Dining {
     });
 
     return this.menu[queryDate];
+  }
+
+  forEachPromise(items, fn) {
+    return items.reduce((promise, item) => {
+      return promise.then(() => {
+        return fn(item);
+      });
+    }, Promise.resolve());
   }
 }
 

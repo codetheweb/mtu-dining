@@ -1,5 +1,7 @@
 import test from 'ava';
 
+const Moment = require('moment');
+
 const MTUDining = require('.');
 
 test('Load and query data for Wads', async t => {
@@ -7,7 +9,8 @@ test('Load and query data for Wads', async t => {
 
   await Wads.load(Wads.WADS);
 
-  const result = Wads.get({month: 9, day: 1});
+  // Hacky? Yes. Does it work? Yes.
+  const result = Wads.get({month: Moment().month(), day: Moment().date()});
 
   if (Object.keys(result).length === 0) {
     t.fail('Result of query was empty.');
@@ -21,7 +24,8 @@ test('Load and query data for McNair', async t => {
 
   await McNair.load(McNair.MCNAIR);
 
-  const result = McNair.get({month: 9, day: 1});
+  // Hacky? Yes. Does it work? Yes.
+  const result = McNair.get({month: Moment().month(), day: Moment().date()});
 
   if (Object.keys(result).length === 0) {
     t.fail('Result of query was empty.');
