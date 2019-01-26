@@ -1,5 +1,5 @@
 const fs = require('fs');
-const {resolve, basename} = require('path');
+const {join, basename} = require('path');
 const got = require('got');
 const cheerio = require('cheerio');
 const moment = require('moment');
@@ -20,7 +20,7 @@ class Dining {
       throw new TypeError('Wrong hall format.');
     }
 
-    const dataDirectory = resolve('data/' + moment().year() + '/' + hall);
+    const dataDirectory = join(__dirname, 'data', moment().year().toString(), '/', hall);
 
     if (fs.existsSync(dataDirectory)) {
       return this._staticLoad(dataDirectory);
