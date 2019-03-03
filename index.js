@@ -39,7 +39,7 @@ class Dining {
     return new Promise((resolve, reject) => {
       try {
         Object.keys(data).forEach(weekStartDate => {
-          const startDate = new moment(weekStartDate[0], 'M:DD:YY');
+          const startDate = new moment(weekStartDate, 'M:DD:YY');
           const thisWeek = data[weekStartDate];
 
           for (let i = 0; i < 7; i++) {
