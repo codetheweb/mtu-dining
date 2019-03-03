@@ -1,5 +1,5 @@
 const fs = require('fs');
-const {join, basename} = require('path');
+const {basename} = require('path');
 const got = require('got');
 const cheerio = require('cheerio');
 const moment = require('moment');
@@ -20,12 +20,56 @@ class Dining {
       throw new TypeError('Wrong hall format.');
     }
 
-    const dataDirectory = join(__dirname, 'data', moment().year().toString(), '/', hall);
-
-    if (fs.existsSync(dataDirectory)) {
-      return this._staticLoad(dataDirectory);
+    try {
+      const path = './data/' + moment().year().toString() + '/' + hall + '/json';
+      return this._jsonLoad(path);
+    } catch (error) {
+      return this._httpLoad(hall);
     }
-    return this._httpLoad(hall);
+  }
+
+  _jsonLoad(path) {
+    const data = require(path);
+
+    if (!data) {
+      throw new Error('Data does not exist.');
+    }
+
+    const finalMenu = {};
+
+    Object.keys(data).forEach(weekStartDate => {
+      const startDate = new moment(weekStartDate[0], 'M:DD:YY');
+      const thisWeek = data[weekStartDate];
+
+      for (let i = 0; i < 7; i++) {
+        let thisBreakfast = thisWeek[0][Object.keys(thisWeek[0])[i]];
+        let thisLunch = thisWeek[1][Object.keys(thisWeek[1])[i]];
+        let thisDinner = thisWeek[2][Object.keys(thisWeek[2])[i]];
+
+        // Convert to arrays
+        if (thisBreakfast) {
+          thisBreakfast = thisBreakfast.split('\n');
+        }
+        if (thisLunch) {
+          thisLunch = thisLunch.split('\n');
+        }
+        if (thisDinner) {
+          thisDinner = thisDinner.split('\n');
+        }
+
+        const thisDailyMenu = {
+          breakfast: thisBreakfast,
+          lunch: thisLunch,
+          dinner: thisDinner
+        };
+
+        finalMenu[startDate] = thisDailyMenu;
+
+        startDate.add(1, 'days');
+      }
+    });
+
+    this.menu = finalMenu;
   }
 
   _staticLoad(directory) {
