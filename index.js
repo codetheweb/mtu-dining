@@ -21,15 +21,14 @@ class Dining {
     }
 
     try {
-      const path = './data/' + moment().year().toString() + '/' + hall + '/json';
-      return this._jsonLoad(path);
+      return this._jsonLoad(hall);
     } catch (error) {
       return this._httpLoad(hall);
     }
   }
 
-  _jsonLoad(path) {
-    const data = require(path);
+  _jsonLoad(hall) {
+    const data = require(`./data/${moment().year().toString()}/${hall}/json`);
 
     if (!data) {
       throw new Error('Data does not exist.');
@@ -37,39 +36,46 @@ class Dining {
 
     const finalMenu = {};
 
-    Object.keys(data).forEach(weekStartDate => {
-      const startDate = new moment(weekStartDate[0], 'M:DD:YY');
-      const thisWeek = data[weekStartDate];
+    return new Promise((resolve, reject) => {
+      try {
+        Object.keys(data).forEach(weekStartDate => {
+          const startDate = new moment(weekStartDate[0], 'M:DD:YY');
+          const thisWeek = data[weekStartDate];
 
-      for (let i = 0; i < 7; i++) {
-        let thisBreakfast = thisWeek[0][Object.keys(thisWeek[0])[i]];
-        let thisLunch = thisWeek[1][Object.keys(thisWeek[1])[i]];
-        let thisDinner = thisWeek[2][Object.keys(thisWeek[2])[i]];
+          for (let i = 0; i < 7; i++) {
+            let thisBreakfast = thisWeek[0][Object.keys(thisWeek[0])[i]];
+            let thisLunch = thisWeek[1][Object.keys(thisWeek[1])[i]];
+            let thisDinner = thisWeek[2][Object.keys(thisWeek[2])[i]];
 
-        // Convert to arrays
-        if (thisBreakfast) {
-          thisBreakfast = thisBreakfast.split('\n');
-        }
-        if (thisLunch) {
-          thisLunch = thisLunch.split('\n');
-        }
-        if (thisDinner) {
-          thisDinner = thisDinner.split('\n');
-        }
+            // Convert to arrays
+            if (thisBreakfast) {
+              thisBreakfast = thisBreakfast.split('\n');
+            }
+            if (thisLunch) {
+              thisLunch = thisLunch.split('\n');
+            }
+            if (thisDinner) {
+              thisDinner = thisDinner.split('\n');
+            }
 
-        const thisDailyMenu = {
-          breakfast: thisBreakfast,
-          lunch: thisLunch,
-          dinner: thisDinner
-        };
+            const thisDailyMenu = {
+              breakfast: thisBreakfast,
+              lunch: thisLunch,
+              dinner: thisDinner
+            };
 
-        finalMenu[startDate] = thisDailyMenu;
+            finalMenu[startDate] = thisDailyMenu;
 
-        startDate.add(1, 'days');
+            startDate.add(1, 'days');
+          }
+        });
+
+        this.menu = finalMenu;
+        resolve(this.menu);
+      } catch (error) {
+        reject(error);
       }
     });
-
-    this.menu = finalMenu;
   }
 
   _staticLoad(directory) {
