@@ -1,6 +1,6 @@
 {
   "name": "mtu-dining",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "🌮 🌭 A scrapper for MTU's dinning halls.",
   "main": "index.js",
   "scripts": {
