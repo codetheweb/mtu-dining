@@ -55,7 +55,6 @@ class Dining {
 
             finalMenu[startDate] = thisDailyMenu;
 
-            console.log(startDate.toDate());
             startDate.add(1, 'days');
           }
         });
