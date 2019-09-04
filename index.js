@@ -43,20 +43,9 @@ class Dining {
           const thisWeek = data[weekStartDate];
 
           for (let i = 0; i < 7; i++) {
-            let thisBreakfast = thisWeek[0][Object.keys(thisWeek[0])[i]];
-            let thisLunch = thisWeek[1][Object.keys(thisWeek[1])[i]];
-            let thisDinner = thisWeek[2][Object.keys(thisWeek[2])[i]];
-
-            // Convert to arrays
-            if (thisBreakfast) {
-              thisBreakfast = thisBreakfast.split('\n');
-            }
-            if (thisLunch) {
-              thisLunch = thisLunch.split('\n');
-            }
-            if (thisDinner) {
-              thisDinner = thisDinner.split('\n');
-            }
+            const thisBreakfast = thisWeek[0][Object.keys(thisWeek[0])[i]];
+            const thisLunch = thisWeek[1][Object.keys(thisWeek[1])[i]];
+            const thisDinner = thisWeek[2][Object.keys(thisWeek[2])[i]];
 
             const thisDailyMenu = {
               breakfast: thisBreakfast,
@@ -66,6 +55,7 @@ class Dining {
 
             finalMenu[startDate] = thisDailyMenu;
 
+            console.log(startDate.toDate());
             startDate.add(1, 'days');
           }
         });
@@ -250,6 +240,8 @@ class Dining {
       seconds: 0,
       miliseconds: 0
     });
+
+    queryDate.subtract(3, 'days');
 
     return this.menu[queryDate];
   }
