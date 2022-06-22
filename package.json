@@ -11,7 +11,7 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "csv": "^5.1.1",
-    "got": "^9.3.2",
+    "got": "^11.8.5",
     "moment": "^2.22.2",
     "papaparse": "^4.6.3"
   },
